@@ -1,5 +1,5 @@
 # ======================================================================== #
-# Copyright 2018-2015 Ingo Wald                                            #
+# Copyright 2021-2025 Ingo Wald                                            #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -14,36 +14,22 @@
 # limitations under the License.                                           #
 # ======================================================================== #
 
-set(OpenGL_GL_PREFERENCE "LEGACY")
-find_package(OpenGL REQUIRED OPTIONAL_COMPONENTS OpenGL)
-
-add_library(owl_viewer STATIC)
-
-target_sources(owl_viewer PRIVATE
-  # add header files, so visual studio will properly show them as part of the solution
-  OWLViewer.h
-  Camera.h
-  InspectMode.h
-  FlyMode.h
-
-  # the actual source files
-  OWLViewer.cpp
-  Camera.cpp
-  InspectMode.cpp
-  FlyMode.cpp
-)
-
-if(TARGET OpenGL::OpenGL)
-  target_link_libraries(owl_viewer PUBLIC OpenGL::OpenGL)
-else()
-  target_link_libraries(owl_viewer PUBLIC OpenGL::GL)
+if (NOT (TARGET stb_image))
+  add_subdirectory(stb_image)
 endif()
 
-target_link_libraries(owl_viewer
-  PUBLIC
-    owl::owl
-    glfw
-    stb_image
-)
-
-target_include_directories(owl_viewer PUBLIC ${CMAKE_CURRENT_LIST_DIR}/..)
+find_package(glfw3 QUIET COMPONENTS glfw)
+if (TARGET glfw)
+  message("glfw found installed on system, using it")
+else()
+  if (WIN32)
+    # for windows, downloading and installing glfw can be a pain, so
+    # let's just build it.
+    set(OpenGL_GL_PREFERENCE "LEGACY")
+    add_subdirectory(glfw-3.4)
+  else()
+    # for linux, it's easier to just install glfw, so ask user to do
+    # so
+    message(FATAL_ERROR "Could not find GLFW; please install via apt/yum/etc, or build and install locally")
+  endif()
+endif()
