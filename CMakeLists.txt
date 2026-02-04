@@ -42,8 +42,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------
 # owl library itself, including owl-common
 # ------------------------------------------------------------------
-add_subdirectory(submodules/owl EXCLUDE_FROM_ALL)
-
+if (TARGET owl)
+else()
+  add_subdirectory(submodules/owl)
+endif()
+  
 # ------------------------------------------------------------------
 # stuff that's 'common' to all samples - stb, glfw and owlviewer for
 # opening windows.
